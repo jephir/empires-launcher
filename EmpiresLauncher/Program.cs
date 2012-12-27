@@ -16,10 +16,17 @@ namespace EmpiresLauncher
 
         static void Main(string[] args)
         {
-            RunEmpires();
+            var argsLine = "";
+
+            foreach (var arg in args)
+            {
+                argsLine += " " + arg;
+            }
+
+            RunEmpires(argsLine);
         }
 
-        private static void RunEmpires()
+        private static void RunEmpires(string args)
         {
             var currentDirectory = Directory.GetCurrentDirectory();
             var steamappsDirectory = Directory.GetParent(currentDirectory).Parent.FullName;
@@ -34,7 +41,7 @@ namespace EmpiresLauncher
                 {
                     var sourceSdkBase2007Hl2Exe = Path.Combine(sourceSdkBase2007Directory, hl2ExeName);
                     var empiresModDirectory = Path.Combine(currentDirectory, empiresName);
-                    var launchArguments = String.Format("-game \"{0}\"", empiresModDirectory);
+                    var launchArguments = String.Format("-game \"{0}\"{1}", empiresModDirectory, args);
 
                     var startInfo = new ProcessStartInfo()
                     {
