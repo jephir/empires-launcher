@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Windows.Forms;
 
 namespace EmpiresLauncher
@@ -92,7 +91,15 @@ namespace EmpiresLauncher
 
         private static bool DirectoryContainsFileName(string directoryName, string fileName)
         {
-            return Directory.GetFiles(directoryName).Any((file) => { return Path.GetFileName(file).Equals(fileName, StringComparison.OrdinalIgnoreCase); });
+            foreach (var file in Directory.GetFiles(directoryName))
+            {
+                if (Path.GetFileName(file).Equals(fileName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
