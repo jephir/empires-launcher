@@ -46,7 +46,9 @@ namespace EmpiresLauncher
                     {
                         using (var process = Process.Start(startInfo))
                         {
+                            Console.WriteLine("Starting Empires...");
                             process.WaitForExit();
+                            Console.WriteLine("Empires has exited.");
                         }
                     }
                     catch (Win32Exception)
