@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
+using System.ComponentModel;
 
 namespace EmpiresLauncher
 {
@@ -41,10 +42,18 @@ namespace EmpiresLauncher
                         Arguments = launchArguments
                     };
 
-                    using (var process = Process.Start(startInfo))
+                    try
                     {
-                        process.WaitForExit();
+                        using (var process = Process.Start(startInfo))
+                        {
+                            process.WaitForExit();
+                        }
                     }
+                    catch (Win32Exception)
+                    {
+                        MessageBox.Show("Can't start Empires because there was an error when running hl2.exe", "Empires Mod", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    
                 }
                 else
                 {
