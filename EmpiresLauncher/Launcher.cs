@@ -37,59 +37,44 @@ namespace EmpiresLauncher
         {
             var currentDirectory = Directory.GetCurrentDirectory();
             var steamappsDirectory = Directory.GetParent(currentDirectory).Parent.FullName;
-            var sourceSdkBase2007Directory = FindGameDirectory(sourceSdkBase2007Name, steamappsDirectory);
-
+            var sourceSdkBase2007Directory = FindGameDirectory(sourceSdkBase2007Name, steamappsDirectory, hl2ExeName);
             var sourceSdkBase2007Exists = !String.IsNullOrEmpty(sourceSdkBase2007Directory);
             if (sourceSdkBase2007Exists)
             {
-                var hl2ExeExists = DirectoryContainsFileName(sourceSdkBase2007Directory, hl2ExeName);
-                if (hl2ExeExists)
+                var sourceSdkBase2007Hl2Exe = Path.Combine(sourceSdkBase2007Directory, hl2ExeName);
+                var empiresModDirectory = Path.Combine(currentDirectory, empiresName);
+                var launchArguments = String.Format("-game \"{0}\" {1}", empiresModDirectory, args);
+                var startInfo = new ProcessStartInfo()
                 {
-                    var sourceSdkBase2007Hl2Exe = Path.Combine(sourceSdkBase2007Directory, hl2ExeName);
-                    var empiresModDirectory = Path.Combine(currentDirectory, empiresName);
-                    var launchArguments = String.Format("-game \"{0}\" {1}", empiresModDirectory, args);
-
-                    var startInfo = new ProcessStartInfo()
-                    {
-                        FileName = sourceSdkBase2007Hl2Exe,
-                        Arguments = launchArguments,
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true,
-                    };
-
-                    var process = new Process()
-                    {
-                        StartInfo = startInfo
-                    };
-
-                    process.OutputDataReceived += (sender, e) =>
-                    {
-                        if (e.Data.Contains(gameLoadedGuid))
-                        {
-                            Application.Exit();
-                        }
-                    };
-
-                    try
-                    {
-                        process.Start();
-                    }
-                    catch (Win32Exception)
-                    {
-                        MessageBox.Show("Can't start Empires because there was an error when running hl2.exe", "Empires Mod", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        throw;
-                    }
-
-                    process.BeginOutputReadLine();
-                }
-                else
+                    FileName = sourceSdkBase2007Hl2Exe,
+                    Arguments = launchArguments,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                };
+                var process = new Process()
                 {
-                    var result = MessageBox.Show("Can't start Empires because hl2.exe in Source SDK Base 2007 was not found. Click OK to run Source SDK Base 2007 and generate hl2.exe. After Source SDK Base 2007 has run, quit it, and start Empires again.\n\n" + sourceSdkBase2007DriveNotice, "Empires Mod", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    if (result == DialogResult.OK)
+                    StartInfo = startInfo
+                };
+
+                process.OutputDataReceived += (sender, e) =>
+                {
+                    if (e.Data.Contains(gameLoadedGuid))
                     {
-                        Process.Start(installSourceSdkBase2007Uri);
+                        Application.Exit();
                     }
+                };
+
+                try
+                {
+                    process.Start();
                 }
+                catch (Win32Exception)
+                {
+                    MessageBox.Show("Can't start Empires because there was an error when running hl2.exe", "Empires Mod", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    throw;
+                }
+
+                process.BeginOutputReadLine();
             }
             else
             {
@@ -101,7 +86,7 @@ namespace EmpiresLauncher
             }
         }
 
-        private static string FindGameDirectory(string targetGameName, string searchRoot)
+        private static string FindGameDirectory(string targetGameName, string searchRoot, string requiredFile)
         {
             var steamappDirectories = Directory.GetDirectories(searchRoot);
             foreach (var steamappDirectory in steamappDirectories)
@@ -110,7 +95,9 @@ namespace EmpiresLauncher
                 foreach (var gameDirectory in gameDirectories)
                 {
                     var gameDirectoryName = Path.GetFileName(gameDirectory);
-                    if (gameDirectoryName.Equals(targetGameName, StringComparison.OrdinalIgnoreCase))
+                    var gameDirectoryEqualsTarget = gameDirectoryName.Equals(targetGameName, StringComparison.OrdinalIgnoreCase);
+                    var gameDirectoryHasRequiredFile = gameDirectoryEqualsTarget && DirectoryContainsFileName(gameDirectory, requiredFile);
+                    if (gameDirectoryHasRequiredFile)
                     {
                         return gameDirectory;
                     }
@@ -120,9 +107,9 @@ namespace EmpiresLauncher
             return null;
         }
 
-        private static bool DirectoryContainsFileName(string directoryName, string fileName)
+        private static bool DirectoryContainsFileName(string path, string fileName)
         {
-            foreach (var file in Directory.GetFiles(directoryName))
+            foreach (var file in Directory.GetFiles(path))
             {
                 if (Path.GetFileName(file).Equals(fileName, StringComparison.OrdinalIgnoreCase))
                 {
