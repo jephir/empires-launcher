@@ -39,6 +39,7 @@ namespace EmpiresLauncher
             var steamappsDirectory = Directory.GetParent(currentDirectory).Parent.FullName;
             var sourceSdkBase2007Directory = FindGameDirectory(sourceSdkBase2007Name, steamappsDirectory, hl2ExeName);
             var sourceSdkBase2007Exists = !String.IsNullOrEmpty(sourceSdkBase2007Directory);
+            
             if (sourceSdkBase2007Exists)
             {
                 var sourceSdkBase2007Hl2Exe = Path.Combine(sourceSdkBase2007Directory, hl2ExeName);
@@ -68,7 +69,7 @@ namespace EmpiresLauncher
                     }
                     catch (Win32Exception)
                     {
-                        MessageBox.Show("Can't start Empires because there was an error when running hl2.exe", "Empires Mod", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show("Can't start Empires because there was a problem running the game.", "Empires Mod", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         throw;
                     }
 
@@ -77,7 +78,8 @@ namespace EmpiresLauncher
             }
             else
             {
-                var result = MessageBox.Show("Can't start Empires because Source SDK Base 2007 was not found. Click OK to install and run Source SDK Base 2007. After Source SDK Base 2007 has run, quit it, and start Empires again.\n\n" + sourceSdkBase2007DriveNotice, "Empires Mod", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var result = MessageBox.Show("Can't start Empires because Source SDK Base 2007 was not found.\n\nClick OK to install and run Source SDK Base 2007. After Source SDK Base 2007 has run, quit it, and start Empires again.\n\n" + sourceSdkBase2007DriveNotice, "Empires Mod", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                
                 if (result == DialogResult.OK)
                 {
                     using (var process = Process.Start(installSourceSdkBase2007Uri))
@@ -91,14 +93,17 @@ namespace EmpiresLauncher
         private static string FindGameDirectory(string targetGameName, string searchRoot, string requiredFile)
         {
             var steamappDirectories = Directory.GetDirectories(searchRoot);
+
             foreach (var steamappDirectory in steamappDirectories)
             {
                 var gameDirectories = Directory.GetDirectories(steamappDirectory);
+
                 foreach (var gameDirectory in gameDirectories)
                 {
                     var gameDirectoryName = Path.GetFileName(gameDirectory);
                     var gameDirectoryEqualsTarget = gameDirectoryName.Equals(targetGameName, StringComparison.OrdinalIgnoreCase);
                     var gameDirectoryHasRequiredFile = gameDirectoryEqualsTarget && DirectoryContainsFileName(gameDirectory, requiredFile);
+
                     if (gameDirectoryHasRequiredFile)
                     {
                         return gameDirectory;
