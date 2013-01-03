@@ -51,37 +51,39 @@ namespace EmpiresLauncher
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                 };
-                var process = new Process()
-                {
-                    StartInfo = startInfo
-                };
 
-                process.OutputDataReceived += (sender, e) =>
+                using (var process = new Process() { StartInfo = startInfo })
                 {
-                    if (e.Data.Contains(gameLoadedGuid))
+                    process.OutputDataReceived += (sender, e) =>
                     {
-                        Application.Exit();
+                        if (e.Data.Contains(gameLoadedGuid))
+                        {
+                            Application.Exit();
+                        }
+                    };
+
+                    try
+                    {
+                        process.Start();
                     }
-                };
+                    catch (Win32Exception)
+                    {
+                        MessageBox.Show("Can't start Empires because there was an error when running hl2.exe", "Empires Mod", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        throw;
+                    }
 
-                try
-                {
-                    process.Start();
+                    process.BeginOutputReadLine();
                 }
-                catch (Win32Exception)
-                {
-                    MessageBox.Show("Can't start Empires because there was an error when running hl2.exe", "Empires Mod", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    throw;
-                }
-
-                process.BeginOutputReadLine();
             }
             else
             {
                 var result = MessageBox.Show("Can't start Empires because Source SDK Base 2007 was not found. Click OK to install and run Source SDK Base 2007. After Source SDK Base 2007 has run, quit it, and start Empires again.\n\n" + sourceSdkBase2007DriveNotice, "Empires Mod", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 if (result == DialogResult.OK)
                 {
-                    Process.Start(installSourceSdkBase2007Uri);
+                    using (var process = Process.Start(installSourceSdkBase2007Uri))
+                    {
+                        Environment.Exit(0);
+                    }
                 }
             }
         }
