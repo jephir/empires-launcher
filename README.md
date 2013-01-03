@@ -2,9 +2,13 @@
 
 Starts Empires Mod through Source SDK Base 2007. This launcher is necessary because the location of Source SDK Base 2007 is not stable across different installations.
 
-## Copying
+## License
 
-Copyright (c) 2012 "Jephir"
+Copyright (c) 2012, 2013 "Jephir", Milot "Brutos" Mirdita
+
+The Empires logo is copyright of its respective author.
+
+### Source Code License
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
