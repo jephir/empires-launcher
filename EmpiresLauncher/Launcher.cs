@@ -62,11 +62,12 @@ namespace EmpiresLauncher
                             process.WaitForExit();
                         }
                     }
-                    catch (Exception)
+                    catch (Win32Exception)
                     {
                         MessageBox.Show("Can't start Empires because there was an error when running hl2.exe", "Empires Mod", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
 
+                        throw;
+                    }
                 }
                 else
                 {
