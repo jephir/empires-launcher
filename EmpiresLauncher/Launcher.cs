@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
-using System.Windows.Forms;
-using System.IO;
 using System.Diagnostics;
-using System.Threading;
+using System.IO;
+using System.Windows.Forms;
 
 namespace EmpiresLauncher
 {
@@ -55,11 +50,16 @@ namespace EmpiresLauncher
 
                 using (var process = new Process() { StartInfo = startInfo })
                 {
+                    // Close the launcher once the game has loaded.
                     process.OutputDataReceived += (sender, e) =>
                     {
                         if (e.Data.Contains(gameLoadedGuid))
                         {
                             Application.Exit();
+                        }
+                        else
+                        {
+                            // Current output doesn't contain the game loaded GUID flag.
                         }
                     };
 
@@ -70,6 +70,8 @@ namespace EmpiresLauncher
                     catch (Win32Exception)
                     {
                         MessageBox.Show("Can't start Empires because there was a problem running the game.", "Empires Mod", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                        // Re-throw exception so crash dump is generated.
                         throw;
                     }
 
@@ -79,13 +81,17 @@ namespace EmpiresLauncher
             else
             {
                 var result = MessageBox.Show("Can't start Empires because Source SDK Base 2007 was not found.\n\nClick OK to install and run Source SDK Base 2007. After Source SDK Base 2007 has run, quit it, and start Empires again.\n\n" + sourceSdkBase2007DriveNotice, "Empires Mod", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                
+
                 if (result == DialogResult.OK)
                 {
                     using (var process = Process.Start(installSourceSdkBase2007Uri))
                     {
                         Environment.Exit(0);
                     }
+                }
+                else
+                {
+                    Environment.Exit(0);
                 }
             }
         }
