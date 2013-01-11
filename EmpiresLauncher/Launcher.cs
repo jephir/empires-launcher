@@ -48,24 +48,14 @@ namespace EmpiresLauncher
                     RedirectStandardOutput = true,
                 };
 
-                using (var process = new Process() { StartInfo = startInfo })
+                using (var hl2Process = new Process() { StartInfo = startInfo, EnableRaisingEvents = true })
                 {
                     // Close the launcher once the game has loaded.
-                    process.OutputDataReceived += (sender, e) =>
-                    {
-                        if (e.Data.Contains(gameLoadedGuid))
-                        {
-                            Application.Exit();
-                        }
-                        else
-                        {
-                            // Current output doesn't contain the game loaded GUID flag.
-                        }
-                    };
+                    hl2Process.OutputDataReceived += hl2Process_Exited;
 
                     try
                     {
-                        process.Start();
+                        hl2Process.Start();
                     }
                     catch (Win32Exception)
                     {
@@ -75,7 +65,7 @@ namespace EmpiresLauncher
                         throw;
                     }
 
-                    process.BeginOutputReadLine();
+                    hl2Process.BeginOutputReadLine();
                 }
             }
             else
@@ -131,6 +121,31 @@ namespace EmpiresLauncher
             }
 
             return false;
+        }
+
+        private static void hl2Process_Exited(object sender, DataReceivedEventArgs e)
+        {
+            // Data may be null if game exits unexpectedly.
+            var dataExists = e.Data != null;
+
+            if (dataExists)
+            {
+                var dataContainsGameLoadedGuid = dataExists && e.Data.Contains(gameLoadedGuid);
+
+                if (dataContainsGameLoadedGuid)
+                {
+                    Application.Exit();
+                }
+                else
+                {
+                    // Current output doesn't contain the game loaded GUID flag. Ignore and handle next output.
+                }
+            }
+            else
+            {
+                // Close launcher because game exited unexpectedly.
+                Application.Exit();
+            }
         }
     }
 }
